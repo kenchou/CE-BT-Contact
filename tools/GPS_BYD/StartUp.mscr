@@ -1,0 +1,7 @@
+if(WndExists("Statusbar")) 
+	Close("Statusbar") 
+endif
+Run ("\windows\explorer.exe")
+sleep(5000)
+kill("MortScript.exe")
+exit
