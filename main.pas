@@ -16,6 +16,7 @@ type
       Button1: TButton;
       DataSource1: TDataSource;
       DBGrid1: TDBGrid;
+      Label1: TLabel;
       OpenDialog1: TOpenDialog;
     SQLite3Connection1: TSQLite3Connection;
     SQLQuery1: TSQLQuery;
@@ -39,7 +40,8 @@ implementation
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-  SQLite3Connection1.DatabaseName := 'BT.db';
+  Label1.Caption := 'Current Path: ' + GetCurrentDir;
+  SQLite3Connection1.DatabaseName := Application.Location + '\BT.db';
   SQLite3Connection1.Open;
   SQLQuery1.Active := True;
 end;

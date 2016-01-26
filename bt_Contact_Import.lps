@@ -4,13 +4,13 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="10">
+    <Units Count="11">
       <Unit0>
         <Filename Value="bt_Contact_Import.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <CursorPos X="40" Y="9"/>
-        <UsageCount Value="36"/>
+        <UsageCount Value="38"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -20,9 +20,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="38"/>
-        <CursorPos X="34" Y="42"/>
-        <UsageCount Value="36"/>
+        <TopLine Value="17"/>
+        <CursorPos X="54" Y="43"/>
+        <UsageCount Value="38"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -84,8 +84,17 @@
         <CursorPos Y="800"/>
         <UsageCount Value="10"/>
       </Unit9>
+      <Unit10>
+        <Filename Value="C:\lazarus\lcl\interfaces\win32\win32wsdialogs.pp"/>
+        <UnitName Value="Win32WSDialogs"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="18"/>
+        <CursorPos X="12" Y="32"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit10>
     </Units>
-    <JumpHistory Count="8" HistoryIndex="7">
+    <JumpHistory Count="9" HistoryIndex="8">
       <Position1>
         <Filename Value="main.pas"/>
         <Caret Line="56" Column="14" TopLine="39"/>
@@ -108,16 +117,19 @@
       </Position5>
       <Position6>
         <Filename Value="main.pas"/>
-        <Caret Line="28" Column="28" TopLine="37"/>
+        <Caret Line="43" Column="27" TopLine="38"/>
       </Position6>
       <Position7>
         <Filename Value="main.pas"/>
-        <Caret Line="43" Column="27" TopLine="38"/>
+        <Caret Line="42" Column="34" TopLine="32"/>
       </Position7>
       <Position8>
-        <Filename Value="main.pas"/>
-        <Caret Line="42" Column="34" TopLine="32"/>
+        <Filename Value="C:\lazarus\lcl\interfaces\win32\win32wsdialogs.pp"/>
       </Position8>
+      <Position9>
+        <Filename Value="main.pas"/>
+        <Caret Line="56" Column="5" TopLine="31"/>
+      </Position9>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
