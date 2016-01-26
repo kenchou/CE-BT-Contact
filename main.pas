@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, sqlite3conn, sqldb, db, FileUtil, Forms, Controls,
-  Graphics, Dialogs, DBGrids, StdCtrls;
+  Graphics, Dialogs, DBGrids, StdCtrls, CSVDocument;
 
 type
 
@@ -40,7 +40,8 @@ implementation
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-  Label1.Caption := 'Current Path: ' + GetCurrentDir;
+  Label1.Caption := 'Current Path: ' + GetCurrentDir + sLineBreak
+                  + 'App Location: ' + Application.Location;
   SQLite3Connection1.DatabaseName := Application.Location + '\BT.db';
   SQLite3Connection1.Open;
   SQLQuery1.Active := True;

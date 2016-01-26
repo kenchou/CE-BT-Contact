@@ -27,6 +27,14 @@ object FormMain: TFormMain
     OnClick = Button1Click
     TabOrder = 1
   end
+  object Label1: TLabel
+    Left = 198
+    Height = 17
+    Top = 346
+    Width = 75
+    Caption = 'Current Path:'
+    ParentColor = False
+  end
   object SQLite3Connection1: TSQLite3Connection
     Connected = False
     LoginPrompt = False

@@ -29,9 +29,9 @@ object FormMain: TFormMain
   end
   object Label1: TLabel
     Left = 198
-    Height = 12
+    Height = 17
     Top = 346
-    Width = 78
+    Width = 75
     Caption = 'Current Path:'
     ParentColor = False
   end

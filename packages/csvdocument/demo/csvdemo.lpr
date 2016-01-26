@@ -1,4 +1,4 @@
-program bt_Contact_Import;
+program csvdemo;
 
 {$mode objfpc}{$H+}
 
@@ -7,14 +7,14 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, main, csvdocument_package;
+  Forms, mainfrm;
 
-{$R *.res}
+{$R csvdemo.res}
 
 begin
-  RequireDerivedFormResource := True;
+  Application.Title := 'CsvDemo';
   Application.Initialize;
-  Application.CreateForm(TFormMain, FormMain);
+  Application.CreateForm(TfmCSVTest, fmCSVTest);
   Application.Run;
 end.
 

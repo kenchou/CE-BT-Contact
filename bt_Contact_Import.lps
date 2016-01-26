@@ -8,9 +8,9 @@
       <Unit0>
         <Filename Value="bt_Contact_Import.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="1"/>
         <CursorPos X="40" Y="9"/>
-        <UsageCount Value="38"/>
+        <UsageCount Value="39"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -20,9 +20,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="17"/>
-        <CursorPos X="54" Y="43"/>
-        <UsageCount Value="38"/>
+        <TopLine Value="28"/>
+        <CursorPos Y="34"/>
+        <UsageCount Value="39"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -87,11 +87,10 @@
       <Unit10>
         <Filename Value="C:\lazarus\lcl\interfaces\win32\win32wsdialogs.pp"/>
         <UnitName Value="Win32WSDialogs"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="18"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="22"/>
         <CursorPos X="12" Y="32"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit10>
     </Units>
     <JumpHistory Count="9" HistoryIndex="8">
@@ -124,11 +123,12 @@
         <Caret Line="42" Column="34" TopLine="32"/>
       </Position7>
       <Position8>
-        <Filename Value="C:\lazarus\lcl\interfaces\win32\win32wsdialogs.pp"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="56" Column="5" TopLine="31"/>
       </Position8>
       <Position9>
         <Filename Value="main.pas"/>
-        <Caret Line="56" Column="5" TopLine="31"/>
+        <Caret Line="50" Column="28" TopLine="34"/>
       </Position9>
     </JumpHistory>
   </ProjectSession>
