@@ -28,13 +28,13 @@ type
     procedure FormCreate(Sender: TObject);
   private
     { private declarations }
-    CsvDocmentContact: TCSVDocument;
+    CsvDocumentContact: TCSVDocument;
+    BtDbFile: string;
+    CsvFile: string;
   public
     { public declarations }
   end;
 
-const
-  BTDisk = '\BT\CeApp'
 var
   FormMain: TFormMain;
 
@@ -46,19 +46,38 @@ implementation
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
+  BtDbFile := Application.Location + '\BT.db';
+  CsvFile := Application.Location + '\contact.csv';
+
   Label1.Caption := 'Current Path: ' + GetCurrentDir + sLineBreak
                   + 'App Location: ' + Application.Location;
+  // Check BT.db
+  if not FileExists(BtDbFile) then
+  begin
+    ShowMessage('Cannot Found Database: ' + BtDbFile);
+    Application.ShowMainForm := False;
+    Application.Terminate;
+    exit;
+  end;
+  // Check contact.csv
+  if not FileExists(CsvFile) then
+  begin
+    ShowMessage('Cannot Found CSV: ' + CsvFile);
+    Application.ShowMainForm := False;
+    Application.Terminate;
+    exit;
+  end;
   // Load BT.db from BT disk
-  SQLite3Connection1.DatabaseName := Application.Location + '\BT.db';
+  SQLite3Connection1.DatabaseName := BtDbFile;
   SQLite3Connection1.Open;
   SQLQuery1.Active := True;
   DBGrid1.AutoSizeColumns;
   DBGrid1.Columns[1].Width := 80;
   AutoStretchDBGridColumns(DBGrid1, [0, 1, 2,3], [20, 10, 80, 150]);
   // Load Contact.csv
-  CsvDocmentContact := TCSVDocument.Create;
-  CsvDocmentContact.LoadFromFile('contact.csv');
-  LoadGridFromCSVDocument(StringGrid1, CsvDocmentContact);
+  CsvDocumentContact := TCSVDocument.Create;
+  CsvDocumentContact.LoadFromFile('contact.csv');
+  LoadGridFromCSVDocument(StringGrid1, CsvDocumentContact);
 end;
 
 procedure TFormMain.Button1Click(Sender: TObject);
@@ -75,8 +94,13 @@ end;
 procedure TFormMain.BtnImportClick(Sender: TObject);
 var
   insert_sql: string;
+  r: integer;
 begin
-  insert_sql := 'INSERT INTO Contact (DeviceName, Name, PhoneNum) VALUES (?, ?, ?)'
+  insert_sql := 'INSERT INTO Contact (DeviceName, Name, PhoneNum) VALUES (?, ?, ?)';
+  for r := 0 to CsvDocumentContact.RowCount do
+  begin
+
+  end;
 end;
 
 end.

@@ -29,9 +29,9 @@ object FormMain: TFormMain
   end
   object Label1: TLabel
     Left = 20
-    Height = 12
+    Height = 17
     Top = 16
-    Width = 78
+    Width = 75
     Caption = 'Current Path:'
     ParentColor = False
   end
@@ -62,7 +62,7 @@ object FormMain: TFormMain
     Transaction = SQLTransaction1
     LogEvents = []
     Options = []
-    left = 480
+    left = 456
     top = 10
   end
   object SQLQuery1: TSQLQuery
@@ -73,19 +73,19 @@ object FormMain: TFormMain
       'SELECT * FROM Contact'
     )
     Params = <>
-    left = 672
+    left = 656
     top = 10
   end
   object SQLTransaction1: TSQLTransaction
     Active = False
     Database = SQLite3Connection1
-    left = 592
+    left = 568
     top = 10
   end
   object DataSource1: TDataSource
     DataSet = SQLQuery1
-    left = 48
-    top = 76
+    left = 360
+    top = 10
   end
   object OpenDialog1: TOpenDialog
     left = 736
