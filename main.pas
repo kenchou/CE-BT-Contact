@@ -14,13 +14,12 @@ type
   { TFormMain }
 
   TFormMain = class(TForm)
-    Button1: TButton;
     BtnImport: TButton;
     chkClear: TCheckBox;
+    cboxDevice: TComboBox;
     DataSource1: TDataSource;
     DataSource2: TDataSource;
     DBGrid1: TDBGrid;
-    DBLookupComboBox1: TDBLookupComboBox;
     Label1: TLabel;
     OpenDialog1: TOpenDialog;
     SQLite3Connection1: TSQLite3Connection;
@@ -28,7 +27,6 @@ type
     SQLQuery2: TSQLQuery;
     SQLTransaction1: TSQLTransaction;
     StringGrid1: TStringGrid;
-    procedure Button1Click(Sender: TObject);
     procedure BtnImportClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
@@ -38,7 +36,8 @@ type
     CsvFile: string;
     procedure RefreshContact(aDeviceName: string='');
     procedure CleanContact(aDeviceName: string='');
-    function getMaxId(aTableName: string): integer;
+    procedure PopulateDevice;
+    function GetTableMaxId(aTableName: string): Integer;
   public
     { public declarations }
   end;
@@ -54,11 +53,12 @@ implementation
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
+  // Detect DB & CSV path
   BtDbFile := Application.Location + '\BT.db';
   CsvFile := Application.Location + '\contact.csv';
 
-  Label1.Caption := 'Current Path: ' + GetCurrentDir + sLineBreak
-                  + 'App Location: ' + Application.Location;
+  //Label1.Caption := 'Current Path: ' + GetCurrentDir;
+
   // Check BT.db
   if not FileExists(BtDbFile) then
   begin
@@ -67,6 +67,7 @@ begin
     Application.Terminate;
     exit;
   end;
+
   // Check contact.csv
   if not FileExists(CsvFile) then
   begin
@@ -75,28 +76,40 @@ begin
     Application.Terminate;
     exit;
   end;
+
   // Load BT.db from BT disk
   SQLite3Connection1.DatabaseName := BtDbFile;
   SQLite3Connection1.Open;
-  SQLQuery1.Active := True;
-  DBGrid1.AutoSizeColumns;
-  DBGrid1.Columns[1].Width := 80;
-  AutoStretchDBGridColumns(DBGrid1, [0, 1, 2,3], [20, 10, 80, 150]);
+
+  PopulateDevice;
+  RefreshContact;
+
   // Load Contact.csv
   CsvDocumentContact := TCSVDocument.Create;
   CsvDocumentContact.LoadFromFile('contact.csv');
   LoadGridFromCSVDocument(StringGrid1, CsvDocumentContact);
 end;
 
-procedure TFormMain.Button1Click(Sender: TObject);
+procedure TFormMain.PopulateDevice;
 var
-  filename: string;
+  Field: TField;
 begin
-if OpenDialog1.Execute then
-begin
-  filename := OpenDialog1.Filename;
-  ShowMessage(filename);
-end;
+  SQLTransaction1.StartTransaction;
+  SQLQuery1.Close;
+  SQLQuery1.SQL.Clear;
+  SQLQuery1.SQL.Text := 'SELECT * FROM Paired';
+  SQLQuery1.Open;
+
+  cboxDevice.Items.Clear;
+  for Field in SQLQuery1.Fields do
+  begin
+    if (Field.FieldName = 'ID') or (Field.AsString = '')
+        or (Field.AsString = '插装车间')
+        or (Field.AsString = '我们的') then continue;
+    cboxDevice.Items.Add(Field.AsString);
+  end;
+  SQLQuery1.Close;
+  SQLTransaction1.Commit;
 end;
 
 procedure TFormMain.BtnImportClick(Sender: TObject);
@@ -105,23 +118,31 @@ var
   aDeviceName: string;
   r: integer;
   count: integer;
+  ID: Integer;
 begin
-  aDeviceName := '张小米';
+  if cboxDevice.ItemIndex = -1 then
+  begin
+    ShowMessage('请先选择一个已配对的设备');
+    exit;
+  end;
+  aDeviceName := cboxDevice.Items[cboxDevice.ItemIndex];
+
   // Delete record if check the checkbox
   if chkClear.checked then
   begin
     CleanContact(aDeviceName);
   end;
 
-  aSQLText := 'INSERT INTO Contact (DeviceName, Name, PhoneNum) VALUES (:DeviceName, :Name, :PhoneNum)';
+  ID := GetTableMaxId('Contact');
+  SQLTransaction1.StartTransaction;
+  aSQLText := 'INSERT INTO Contact (ID, DeviceName, Name, PhoneNum) VALUES (:ID, :DeviceName, :Name, :PhoneNum)';
   SQLQuery1.SQL.Clear;
   SQLQuery1.SQL.Text := aSQLText;
-  //SQLQuery1.FieldByName('ID').Required:=false;
-  //SQLTransaction1.StartTransaction;
   count := 0;
   for r := 1 to CsvDocumentContact.RowCount - 1 do
   begin
-    //SQLQuery1.AppendRecord([aDeviceName, CsvDocumentContact.Cells[0, r], CsvDocumentContact.Cells[1, r]]);
+    ID := ID + 1;
+    SQLQuery1.ParamByName('ID').AsInteger := ID;
     SQLQuery1.ParamByName('DeviceName').AsString := aDeviceName;
     SQLQuery1.ParamByName('Name').AsString := CsvDocumentContact.Cells[0, r];
     SQLQuery1.ParamByName('PhoneNum').AsString := CsvDocumentContact.Cells[1, r];
@@ -131,21 +152,28 @@ begin
   SQLTransaction1.Commit;
 
   RefreshContact;
-  ShowMessage('导入完成! 共计 ' + intToStr(count) + ' 条记录.');
+  ShowMessage('导入完成! 共计 ' + IntToStr(count) + ' 条记录.');
 end;
 
-function TFormMain.getMaxId(aTableName: string): integer;
+function TFormMain.GetTableMaxId(aTableName: string): Integer;
 var
   aSQLText: string;
 begin
   aSQLText := Format('SELECT MAX(ID) FROM %s', [aTableName]);
+  //SQLTransaction1.StartTransaction;
   SQLQuery1.SQL.Clear;
   SQLQuery1.SQL.Text := aSQLText;
-  SQLQuery1.ExecSQL;
+  SQLQuery1.Open;
+  GetTableMaxId := SQLQuery1.Fields[0].AsInteger;
+  ShowMessage(SQLQuery1.Fields[0].FieldName + ' Value:' + SQLQuery1.Fields[0].AsString);
+  SQLQuery1.Close;
+  SQLTransaction1.Commit;
 end;
 
 procedure TFormMain.RefreshContact(aDeviceName: string='');
 begin
+  if not SQLTransaction1.Active then
+     SQLTransaction1.StartTransaction;
   SQLQuery1.SQL.Clear;
   SQLQuery1.SQL.Add('SELECT * FROM Contact');
   if aDeviceName <> '' then
@@ -153,9 +181,14 @@ begin
     SQLQuery1.SQL.Add('WHERE DeviceName = :DeviceName');
     SQLQuery1.ParamByName('DeviceName').AsString := aDeviceName;
   end;
-  SQLQuery1.ExecSQL;
+  SQLQuery1.Open;
   SQLTransaction1.Commit;
   SQLQuery1.Active := True;
+
+  DBGrid1.AutoSizeColumns;
+  DBGrid1.Columns[1].Width := 80;
+  AutoStretchDBGridColumns(DBGrid1, [0, 1, 2, 3], [20, 80, 50, 150]);
+
 end;
 
 procedure TFormMain.CleanContact(aDeviceName: string='');
