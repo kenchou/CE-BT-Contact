@@ -133,6 +133,9 @@ begin
     CleanContact(aDeviceName);
   end;
 
+  SQLTransaction1.Rollback;
+  //DBGrid1.DataSource := nil;
+
   ID := GetTableMaxId('Contact');
   SQLTransaction1.StartTransaction;
   aSQLText := 'INSERT INTO Contact (ID, DeviceName, Name, PhoneNum) VALUES (:ID, :DeviceName, :Name, :PhoneNum)';
@@ -151,6 +154,7 @@ begin
   end;
   SQLTransaction1.Commit;
 
+  //DBGrid1.DataSource := DataSource1;
   RefreshContact;
   ShowMessage('导入完成! 共计 ' + IntToStr(count) + ' 条记录.');
 end;
@@ -165,7 +169,7 @@ begin
   SQLQuery1.SQL.Text := aSQLText;
   SQLQuery1.Open;
   GetTableMaxId := SQLQuery1.Fields[0].AsInteger;
-  ShowMessage(SQLQuery1.Fields[0].FieldName + ' Value:' + SQLQuery1.Fields[0].AsString);
+  //ShowMessage(SQLQuery1.Fields[0].FieldName + ' Value:' + SQLQuery1.Fields[0].AsString);
   SQLQuery1.Close;
   SQLTransaction1.Commit;
 end;
