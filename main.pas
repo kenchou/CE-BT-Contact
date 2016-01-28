@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, sqlite3conn, sqldb, db, FileUtil, Forms, Controls,
-  Graphics, Dialogs, DBGrids, StdCtrls, Grids, CsvDocument, stringgridutil, dbgridutil;
+  Graphics, Dialogs, DBGrids, StdCtrls, Grids, DbCtrls, CsvDocument,
+  stringgridutil, dbgridutil;
 
 type
 
@@ -15,12 +16,16 @@ type
   TFormMain = class(TForm)
     Button1: TButton;
     BtnImport: TButton;
+    chkClear: TCheckBox;
     DataSource1: TDataSource;
+    DataSource2: TDataSource;
     DBGrid1: TDBGrid;
+    DBLookupComboBox1: TDBLookupComboBox;
     Label1: TLabel;
     OpenDialog1: TOpenDialog;
     SQLite3Connection1: TSQLite3Connection;
     SQLQuery1: TSQLQuery;
+    SQLQuery2: TSQLQuery;
     SQLTransaction1: TSQLTransaction;
     StringGrid1: TStringGrid;
     procedure Button1Click(Sender: TObject);
@@ -31,6 +36,9 @@ type
     CsvDocumentContact: TCSVDocument;
     BtDbFile: string;
     CsvFile: string;
+    procedure RefreshContact(aDeviceName: string='');
+    procedure CleanContact(aDeviceName: string='');
+    function getMaxId(aTableName: string): integer;
   public
     { public declarations }
   end;
@@ -93,14 +101,74 @@ end;
 
 procedure TFormMain.BtnImportClick(Sender: TObject);
 var
-  insert_sql: string;
+  aSQLText: string;
+  aDeviceName: string;
   r: integer;
+  count: integer;
 begin
-  insert_sql := 'INSERT INTO Contact (DeviceName, Name, PhoneNum) VALUES (?, ?, ?)';
-  for r := 0 to CsvDocumentContact.RowCount do
+  aDeviceName := '张小米';
+  // Delete record if check the checkbox
+  if chkClear.checked then
   begin
-
+    CleanContact(aDeviceName);
   end;
+
+  aSQLText := 'INSERT INTO Contact (DeviceName, Name, PhoneNum) VALUES (:DeviceName, :Name, :PhoneNum)';
+  SQLQuery1.SQL.Clear;
+  SQLQuery1.SQL.Text := aSQLText;
+  //SQLQuery1.FieldByName('ID').Required:=false;
+  //SQLTransaction1.StartTransaction;
+  count := 0;
+  for r := 1 to CsvDocumentContact.RowCount - 1 do
+  begin
+    //SQLQuery1.AppendRecord([aDeviceName, CsvDocumentContact.Cells[0, r], CsvDocumentContact.Cells[1, r]]);
+    SQLQuery1.ParamByName('DeviceName').AsString := aDeviceName;
+    SQLQuery1.ParamByName('Name').AsString := CsvDocumentContact.Cells[0, r];
+    SQLQuery1.ParamByName('PhoneNum').AsString := CsvDocumentContact.Cells[1, r];
+    SQLQuery1.ExecSQL;
+    count := count + 1;
+  end;
+  SQLTransaction1.Commit;
+
+  RefreshContact;
+  ShowMessage('导入完成! 共计 ' + intToStr(count) + ' 条记录.');
+end;
+
+function TFormMain.getMaxId(aTableName: string): integer;
+var
+  aSQLText: string;
+begin
+  aSQLText := Format('SELECT MAX(ID) FROM %s', [aTableName]);
+  SQLQuery1.SQL.Clear;
+  SQLQuery1.SQL.Text := aSQLText;
+  SQLQuery1.ExecSQL;
+end;
+
+procedure TFormMain.RefreshContact(aDeviceName: string='');
+begin
+  SQLQuery1.SQL.Clear;
+  SQLQuery1.SQL.Add('SELECT * FROM Contact');
+  if aDeviceName <> '' then
+  begin
+    SQLQuery1.SQL.Add('WHERE DeviceName = :DeviceName');
+    SQLQuery1.ParamByName('DeviceName').AsString := aDeviceName;
+  end;
+  SQLQuery1.ExecSQL;
+  SQLTransaction1.Commit;
+  SQLQuery1.Active := True;
+end;
+
+procedure TFormMain.CleanContact(aDeviceName: string='');
+begin
+  SQLQuery1.SQL.Clear;
+  SQLQuery1.SQL.Add('DELETE FROM Contact');
+  if aDeviceName <> '' then
+  begin
+    SQLQuery1.SQL.Add('WHERE DeviceName = :DeviceName');
+    SQLQuery1.ParamByName('DeviceName').AsString := aDeviceName;
+  end;
+  SQLQuery1.ExecSQL;
+  SQLTransaction1.Commit;
 end;
 
 end.

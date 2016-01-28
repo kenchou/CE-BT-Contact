@@ -129,8 +129,8 @@ begin
     MaxColCount := CsvDocument.MaxColCount;
 
     //while Parser.ParseNextCell do
-    for r := 0 to MaxRowCount do
-      for c := 0 to MaxColCount do
+    for r := 0 to MaxRowCount - 1 do
+      for c := 0 to MaxColCount - 1 do
       begin
         // Stop if we've filled all existing rows. Todo: check for fixed grids etc, but not relevant for our case
         if AddRows=false then
