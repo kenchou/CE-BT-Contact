@@ -12,6 +12,7 @@ uses
 {$R *.res}
 
 begin
+  Application.Title:='比亚迪车载系统蓝牙通讯录导入 - WinCE';
   RequireDerivedFormResource := True;
   Application.Initialize;
   Application.CreateForm(TFormMain, FormMain);
