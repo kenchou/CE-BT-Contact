@@ -35,8 +35,6 @@ type
   private
     { private declarations }
     CsvDocumentContact: TCSVDocument;
-    BtDbFile: string;
-    CsvFile: string;
     procedure CheckRequired(expr: Boolean; message: string);
     procedure RefreshContact(aDeviceName: string='');
     procedure CleanContact(aDeviceName: string='');
@@ -44,6 +42,8 @@ type
     function GetTableMaxId(aTableName: string): Integer;
   public
     { public declarations }
+    BtDbFile: string;
+    CsvFile: string;
   end;
 
 var
@@ -60,7 +60,7 @@ begin
   Left := 0;
   Top := 25;
   // Detect DB & CSV path
-  BtDbFile := ConcatPaths(['BTDisk', 'CeApp', 'BT.db']);
+  BtDbFile := ConcatPaths(['BT Disk', 'CeApp', 'BT', 'BT.db']);
   CsvFile := ConcatPaths([Application.Location, 'contact.csv']);
 
   stxtDbFile.Caption := BtDbFile;
@@ -91,7 +91,8 @@ begin
     ShowMessage(message);
     Application.ShowMainForm := False;
     Application.Terminate;
-    exit;
+    Close;
+    halt;
   end;
 end;
 
@@ -219,7 +220,7 @@ end;
 
 procedure TFormMain.btnExitClick(Sender: TObject);
 begin
-  Application.Terminate;
+  Close;
 end;
 
 end.
