@@ -30,7 +30,7 @@ for item in items:
 
 contacts_sorted = sorted(contacts, key=lambda k: k[u'Name'])
 
-with open('result.csv', 'w') as f:
+with open('contact.csv', 'wb') as f:
     fieldnames = ['Name', 'PhoneNum', 'Memo']
     writer = csv.DictWriter(f, fieldnames=fieldnames)
     writer.writeheader()
