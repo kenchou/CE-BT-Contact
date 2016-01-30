@@ -7,11 +7,12 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, main;
+  Forms, main, csvdocument_package, stringgridutil;
 
 {$R *.res}
 
 begin
+  Application.Title:='比亚迪车载系统蓝牙通讯录导入 - WinCE';
   RequireDerivedFormResource := True;
   Application.Initialize;
   Application.CreateForm(TFormMain, FormMain);

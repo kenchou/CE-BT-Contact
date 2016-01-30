@@ -1,66 +1,200 @@
 object FormMain: TFormMain
-  Left = 420
-  Height = 414
-  Top = 133
-  Width = 462
-  Caption = 'BlueTooth Contact List'
-  ClientHeight = 414
-  ClientWidth = 462
+  Left = 312
+  Height = 430
+  Top = 171
+  Width = 800
+  Caption = '车载蓝牙通讯录导入'
+  ClientHeight = 430
+  ClientWidth = 800
   OnCreate = FormCreate
   LCLVersion = '1.4.4.0'
   object DBGrid1: TDBGrid
+    AnchorSideRight.Control = BtnImport
     Left = 20
-    Height = 248
+    Height = 257
     Top = 72
-    Width = 424
+    Width = 336
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    BorderSpacing.Right = 12
     Color = clWindow
     Columns = <>
     DataSource = DataSource1
     TabOrder = 0
   end
-  object Button1: TButton
-    Left = 40
-    Height = 25
-    Top = 341
-    Width = 104
-    Caption = 'Open vCard...'
-    OnClick = Button1Click
+  object Label1: TLabel
+    AnchorSideRight.Control = cboxDevice
+    Left = 182
+    Height = 17
+    Top = 40
+    Width = 72
+    Anchors = [akTop, akRight]
+    BorderSpacing.Right = 2
+    Caption = '已配对设备：'
+    ParentColor = False
+  end
+  object StringGrid1: TStringGrid
+    AnchorSideLeft.Control = BtnImport
+    AnchorSideLeft.Side = asrBottom
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Side = asrBottom
+    Left = 455
+    Height = 256
+    Top = 72
+    Width = 329
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    BorderSpacing.Left = 12
+    ColCount = 3
+    DefaultColWidth = 108
+    FixedCols = 0
+    RowCount = 1
     TabOrder = 1
+  end
+  object BtnImport: TButton
+    Left = 368
+    Height = 55
+    Top = 72
+    Width = 75
+    Anchors = [akTop]
+    Caption = '«导入通讯录'
+    OnClick = BtnImportClick
+    TabOrder = 2
+  end
+  object chkClear: TCheckBox
+    AnchorSideLeft.Control = BtnImport
+    Left = 368
+    Height = 21
+    Top = 36
+    Width = 118
+    Caption = '先删除车内通讯录'
+    TabOrder = 3
+  end
+  object cboxDevice: TComboBox
+    AnchorSideRight.Control = DBGrid1
+    AnchorSideRight.Side = asrBottom
+    Left = 256
+    Height = 25
+    Top = 32
+    Width = 100
+    Anchors = [akTop, akRight]
+    ItemHeight = 17
+    Style = csDropDownList
+    TabOrder = 4
+  end
+  object btnExit: TButton
+    Left = 368
+    Height = 55
+    Top = 274
+    Width = 75
+    Anchors = [akBottom]
+    Caption = '退出程序'
+    OnClick = btnExitClick
+    TabOrder = 5
+  end
+  object stxtDbFile: TStaticText
+    AnchorSideLeft.Control = DBGrid1
+    AnchorSideTop.Control = DBGrid1
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = DBGrid1
+    AnchorSideRight.Side = asrBottom
+    Left = 20
+    Height = 17
+    Top = 341
+    Width = 336
+    BorderSpacing.Top = 12
+    BorderStyle = sbsSingle
+    Caption = 'BT.db'
+    TabOrder = 6
+  end
+  object stxtCsvFile: TStaticText
+    AnchorSideLeft.Control = StringGrid1
+    AnchorSideTop.Control = DBGrid1
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = StringGrid1
+    AnchorSideRight.Side = asrBottom
+    Left = 455
+    Height = 17
+    Top = 341
+    Width = 329
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Top = 12
+    BorderStyle = sbsSingle
+    Caption = 'contact.csv'
+    TabOrder = 7
   end
   object SQLite3Connection1: TSQLite3Connection
     Connected = False
     LoginPrompt = False
+    DatabaseName = '\BT.db'
     KeepConnection = False
-    Transaction = SQLTransaction1
     LogEvents = []
     Options = []
-    left = 48
-    top = 8
+    left = 128
+    top = 176
   end
   object SQLQuery1: TSQLQuery
-    FieldDefs = <>
+    FieldDefs = <    
+      item
+        Name = 'ID'
+        DataType = ftInteger
+        Precision = -1
+        Size = 0
+      end    
+      item
+        Name = 'DeviceName'
+        DataType = ftString
+        Precision = -1
+        Size = 32
+      end    
+      item
+        Name = 'PhoneNum'
+        DataType = ftString
+        Precision = -1
+        Size = 24
+      end    
+      item
+        Name = 'Name'
+        DataType = ftString
+        Precision = -1
+        Size = 24
+      end>
     Database = SQLite3Connection1
     Transaction = SQLTransaction1
     SQL.Strings = (
       'SELECT * FROM Contact'
     )
+    InsertSQL.Strings = (
+      'INSERT INTO Contact (DeviceName, Name, PhoneNum)'
+      'VALUE (:DeviceName, :Name, :PhoneNum)'
+    )
     Params = <>
-    left = 248
-    top = 10
+    left = 128
+    top = 264
   end
   object SQLTransaction1: TSQLTransaction
     Active = False
     Database = SQLite3Connection1
-    left = 160
-    top = 10
+    left = 224
+    top = 176
   end
   object DataSource1: TDataSource
     DataSet = SQLQuery1
-    left = 48
-    top = 76
+    left = 224
+    top = 264
   end
-  object OpenDialog1: TOpenDialog
-    left = 37
-    top = 145
+  object SQLQuery2: TSQLQuery
+    FieldDefs = <>
+    Database = SQLite3Connection1
+    Transaction = SQLTransaction1
+    SQL.Strings = (
+      'SELECT DISTINCT(DeviceName) AS DeviceName FROM Contact'
+    )
+    Params = <>
+    left = 128
+    top = 88
+  end
+  object DataSource2: TDataSource
+    DataSet = SQLQuery2
+    left = 224
+    top = 88
   end
 end
