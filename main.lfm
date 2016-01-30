@@ -24,7 +24,7 @@ object FormMain: TFormMain
   object Label1: TLabel
     AnchorSideRight.Control = cboxDevice
     Left = 182
-    Height = 12
+    Height = 17
     Top = 40
     Width = 72
     Anchors = [akTop, akRight]

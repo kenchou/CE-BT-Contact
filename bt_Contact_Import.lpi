@@ -17,7 +17,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
-      <BuildNr Value="11"/>
+      <BuildNr Value="14"/>
       <Language Value="0804"/>
       <StringTable CompanyName="SciCooking" InternalName="CE-BT-Import" LegalCopyright="scicooking.net" ProductName="蓝牙通讯录导入" ProductVersion=""/>
     </VersionInfo>
