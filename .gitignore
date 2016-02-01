@@ -30,3 +30,7 @@ lib/
 *.app/
 
 !/tools/**/*.exe
+
+*.pyc
+**/dist
+**/build
