@@ -3,7 +3,9 @@
 
 import argparse
 import csv
+import fileinput
 import vobject
+from pypinyin import lazy_pinyin
 import sys
 import codecs
 import locale
@@ -14,24 +16,32 @@ sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout)
 parser = argparse.ArgumentParser()
 parser.add_argument('remaining_args', nargs=argparse.REMAINDER)
 args = parser.parse_args()
+filelist = args.remaining_args if args.remaining_args else [sys.stdin]
 
 contacts = []
-items = vobject.readComponents(codecs.getreader('utf-8')(sys.stdin))
-# with codecs.open('00001.vcf', 'r', 'utf-8') as f:
-#     items = vobject.readComponents(f)
-#     # print items.content
-for item in items:
-    for child in item.getChildren():
-        if child.name == 'TEL':
-            types = [x.lower()for x in child.params['TYPE'] if x not in ['CELL', 'PREF', 'VOICE']]
-            contacts.append({'Name': item.fn.value.encode('utf-8'),
-                             'PhoneNum': child.value.encode('utf-8'),
-                             'Memo': ','.join(types).encode('utf-8')})
+# items = vobject.readComponents(codecs.getreader('utf-8')(sys.stdin))
+for filename in filelist:
+    print 'Processing', filename if isinstance(filename, basestring) else 'stdin'
+    fileStream = open(filename, 'r') if isinstance(filename, basestring) else codecs.getreader('utf-8')(sys.stdin)
+    items = vobject.readComponents(fileStream)
+    for item in items:
+        for child in item.getChildren():
+            if child.name == 'TEL':
+                types = [x.lower()for x in child.params['TYPE'] if x not in ['CELL', 'PREF', 'VOICE']]
+                data = {'Name': item.fn.value,
+                        'PhoneNum': child.value.replace('-', ''),
+                        'Memo': ','.join(types)}
+                if data not in contacts:
+                    contacts.append(data)
 
-contacts_sorted = sorted(contacts, key=lambda k: k[u'Name'])
+print 'Total', len(contacts), 'contacts'
+print '------'
+contacts_sorted = sorted(contacts, key=lambda k: lazy_pinyin(k['Name']))
 
 with open('contact.csv', 'wb') as f:
     fieldnames = ['Name', 'PhoneNum', 'Memo']
     writer = csv.DictWriter(f, fieldnames=fieldnames)
     writer.writeheader()
-    writer.writerows(contacts_sorted)
+    # writer.writerows(contacts_sorted)
+    for row in contacts_sorted:
+        writer.writerow({k:v.encode('utf8') for k,v in row.items()})
