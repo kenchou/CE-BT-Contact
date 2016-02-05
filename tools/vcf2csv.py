@@ -27,7 +27,7 @@ for filename in filelist:
     for item in items:
         for child in item.getChildren():
             if child.name == 'TEL':
-                types = [x.lower()for x in child.params['TYPE'] if x not in ['CELL', 'PREF', 'VOICE']]
+                types = [x.lower()for x in child.params['TYPE']] if 'TYPE' in child.params else []
                 data = {'Name': item.fn.value,
                         'PhoneNum': child.value.replace('-', ''),
                         'Memo': ','.join(types)}

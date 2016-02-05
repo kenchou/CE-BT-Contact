@@ -31,6 +31,7 @@ lib/
 
 !/tools/**/*.exe
 
+# Python
 *.pyc
 **/dist
 **/build
