@@ -18,8 +18,9 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <RevisionNr Value="1"/>
-      <BuildNr Value="21"/>
+      <MinorVersionNr Value="1"/>
+      <RevisionNr Value="2"/>
+      <BuildNr Value="23"/>
       <Language Value="0804"/>
       <CharSet Value="04B0"/>
       <StringTable CompanyName="SciCooking" InternalName="CE-BT-Import" LegalCopyright="scicooking.net" ProductName="蓝牙通讯录导入" ProductVersion=""/>
@@ -137,8 +138,6 @@
     </CodeGeneration>
     <Linking>
       <Debugging>
-        <GenerateDebugInfo Value="False"/>
-        <UseLineInfoUnit Value="False"/>
         <UseHeaptrc Value="True"/>
         <StripSymbols Value="True"/>
       </Debugging>

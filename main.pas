@@ -32,6 +32,7 @@ type
     procedure btnExitClick(Sender: TObject);
     procedure BtnImportClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { private declarations }
     CsvDocumentContact: TCSVDocument;
@@ -60,7 +61,11 @@ begin
   Left := 0;
   Top := 25;
   // Detect DB & CSV path
+  {$IfDef WinCE}
   BtDbFile := ConcatPaths(['BT Disk', 'CeApp', 'BT', 'BT.db']);
+  {$Else}
+  BtDbFile := ConcatPaths([Application.Location, 'BT Disk', 'CeApp', 'BT', 'BT.db']);
+  {$EndIf}
   CsvFile := ConcatPaths([Application.Location, 'contact.csv']);
 
   stxtDbFile.Caption := BtDbFile;
@@ -82,6 +87,11 @@ begin
   CsvDocumentContact := TCSVDocument.Create;
   CsvDocumentContact.LoadFromFile(CsvFile);
   LoadGridFromCSVDocument(StringGrid1, CsvDocumentContact);
+end;
+
+procedure TFormMain.FormDestroy(Sender: TObject);
+begin
+  CsvDocumentContact.Free;
 end;
 
 procedure TFormMain.CheckRequired(expr: Boolean; message: string);

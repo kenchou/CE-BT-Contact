@@ -7,6 +7,7 @@ object FormMain: TFormMain
   ClientHeight = 430
   ClientWidth = 800
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   LCLVersion = '1.4.4.0'
   object DBGrid1: TDBGrid
     AnchorSideRight.Control = BtnImport
@@ -24,7 +25,7 @@ object FormMain: TFormMain
   object Label1: TLabel
     AnchorSideRight.Control = cboxDevice
     Left = 182
-    Height = 17
+    Height = 12
     Top = 40
     Width = 72
     Anchors = [akTop, akRight]
