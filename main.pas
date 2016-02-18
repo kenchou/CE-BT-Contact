@@ -187,7 +187,7 @@ begin
         or (Field.AsString = '我们的') then continue;
     cboxDevice.Items.Add(Field.AsString);
   end;
-  if cboxDevice.Items.Count = 1 then
+  if cboxDevice.Items.Count >= 1 then
   begin
     cboxDevice.ItemIndex := 0;
   end;
