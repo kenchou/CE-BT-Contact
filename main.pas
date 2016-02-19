@@ -50,6 +50,10 @@ type
 var
   FormMain: TFormMain;
 
+const
+  BtAppPath = '\BT Disk\CeApp\BT';
+  SearchPath = '\SDMemory2;\SDMemory3';
+
 implementation
 
 {$R *.lfm}
@@ -62,19 +66,19 @@ begin
   Top := 25;
   // Detect DB & CSV path
   {$IfDef WinCE}
-  BtDbFile := ConcatPaths(['BT Disk', 'CeApp', 'BT', 'BT.db']);
+  BtDbFile := ConcatPaths([BtAppPath, 'BT.db']);
   {$Else}
-  BtDbFile := ConcatPaths([Application.Location, 'BT Disk', 'CeApp', 'BT', 'BT.db']);
+  BtDbFile := ConcatPaths([Application.Location, BtAppPath, 'BT.db']);
   {$EndIf}
-  CsvFile := ConcatPaths([Application.Location, 'contact.csv']);
+  CsvFile := ExpandFileNameUTF8(FileSearchUTF8('contact.csv', Application.Location + ';' + SearchPath));
 
   stxtDbFile.Caption := BtDbFile;
   stxtCsvFile.Caption := CsvFile;
 
   // Check BT.db
-  CheckRequired(FileExists(BtDbFile), 'Cannot Found Database: ' + BtDbFile);
+  CheckRequired(FileExistsUTF8(BtDbFile), 'Cannot Found Database: ' + BtDbFile);
   // Check contact.csv
-  CheckRequired(FileExists(CsvFile), 'Cannot Found CSV: ' + CsvFile);
+  CheckRequired(FileExistsUTF8(CsvFile), 'Cannot Found CSV: ' + CsvFile);
 
   // Connecte to SQLite
   SQLite3Connection1.DatabaseName := BtDbFile;
