@@ -101,6 +101,7 @@ object FormMain: TFormMain
     Height = 17
     Top = 341
     Width = 336
+    Anchors = [akTop, akLeft, akRight]
     BorderSpacing.Top = 12
     BorderStyle = sbsSingle
     Caption = 'BT.db'
