@@ -3,7 +3,7 @@ object FormMain: TFormMain
   Height = 430
   Top = 171
   Width = 800
-  Caption = '车载蓝牙通讯录导入'
+  Caption = 'BYD 蓝牙通讯录导入'
   ClientHeight = 430
   ClientWidth = 800
   OnCreate = FormCreate
@@ -11,8 +11,9 @@ object FormMain: TFormMain
   LCLVersion = '1.4.4.0'
   object DBGrid1: TDBGrid
     AnchorSideRight.Control = BtnImport
+    AnchorSideBottom.Side = asrCenter
     Left = 20
-    Height = 257
+    Height = 249
     Top = 72
     Width = 336
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -23,12 +24,12 @@ object FormMain: TFormMain
     TabOrder = 0
   end
   object Label1: TLabel
+    AnchorSideLeft.Control = DBGrid1
     AnchorSideRight.Control = cboxDevice
-    Left = 182
+    Left = 20
     Height = 12
     Top = 40
     Width = 72
-    Anchors = [akTop, akRight]
     BorderSpacing.Right = 2
     Caption = '已配对设备：'
     ParentColor = False
@@ -39,7 +40,7 @@ object FormMain: TFormMain
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Side = asrBottom
     Left = 455
-    Height = 256
+    Height = 249
     Top = 72
     Width = 329
     Anchors = [akTop, akLeft, akRight, akBottom]
@@ -61,67 +62,56 @@ object FormMain: TFormMain
     TabOrder = 2
   end
   object chkClear: TCheckBox
-    AnchorSideLeft.Control = BtnImport
+    AnchorSideLeft.Control = cboxDevice
+    AnchorSideLeft.Side = asrBottom
     Left = 368
     Height = 21
     Top = 36
     Width = 118
+    BorderSpacing.Left = 12
     Caption = '先删除车内通讯录'
     TabOrder = 3
   end
   object cboxDevice: TComboBox
+    AnchorSideLeft.Control = Label1
+    AnchorSideLeft.Side = asrBottom
     AnchorSideRight.Control = DBGrid1
     AnchorSideRight.Side = asrBottom
-    Left = 256
+    Left = 94
     Height = 25
     Top = 32
-    Width = 100
-    Anchors = [akTop, akRight]
+    Width = 262
+    Anchors = [akTop, akLeft, akRight]
     ItemHeight = 17
+    OnChange = cboxDeviceChange
     Style = csDropDownList
     TabOrder = 4
   end
   object btnExit: TButton
+    AnchorSideBottom.Control = DBGrid1
+    AnchorSideBottom.Side = asrBottom
     Left = 368
     Height = 55
-    Top = 274
+    Top = 266
     Width = 75
     Anchors = [akBottom]
     Caption = '退出程序'
     OnClick = btnExitClick
     TabOrder = 5
   end
-  object stxtDbFile: TStaticText
-    AnchorSideLeft.Control = DBGrid1
+  object lstLog: TListBox
     AnchorSideTop.Control = DBGrid1
     AnchorSideTop.Side = asrBottom
-    AnchorSideRight.Control = DBGrid1
     AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Side = asrBottom
     Left = 20
-    Height = 17
-    Top = 341
-    Width = 336
-    Anchors = [akTop, akLeft, akRight]
-    BorderSpacing.Top = 12
-    BorderStyle = sbsSingle
-    Caption = 'BT.db'
+    Height = 90
+    Top = 331
+    Width = 764
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    BorderSpacing.Top = 10
+    ItemHeight = 0
     TabOrder = 6
-  end
-  object stxtCsvFile: TStaticText
-    AnchorSideLeft.Control = StringGrid1
-    AnchorSideTop.Control = DBGrid1
-    AnchorSideTop.Side = asrBottom
-    AnchorSideRight.Control = StringGrid1
-    AnchorSideRight.Side = asrBottom
-    Left = 455
-    Height = 17
-    Top = 341
-    Width = 329
-    Anchors = [akTop, akLeft, akRight]
-    BorderSpacing.Top = 12
-    BorderStyle = sbsSingle
-    Caption = 'contact.csv'
-    TabOrder = 7
   end
   object SQLite3Connection1: TSQLite3Connection
     Connected = False
