@@ -180,7 +180,7 @@ end;
 
 procedure TFormMain.cboxDeviceChange(Sender: TObject);
 begin
-  RefreshContact(DeviceList[cboxDevice.ItemIndex]);
+  RefreshContact(GetSelectedDevice);
 end;
 
 function TFormMain.GetTableMaxId(aTableName: string): Integer;
@@ -201,7 +201,10 @@ end;
 
 function TFormMain.GetSelectedDevice(): string;
 begin
-    Result := DeviceList[cboxDevice.ItemIndex];
+    if cboxDevice.ItemIndex = -1 then
+       Result := ''
+    else
+       Result := DeviceList[cboxDevice.ItemIndex];
 end;
 
 procedure TFormMain.PopulateDevice;
@@ -272,9 +275,9 @@ begin
       begin
         DevName := IniFile.ReadString(Section, 'DevName', '');
         DevAddr := IniFile.ReadString(Section, 'DevAddr', '');
-        lstLog.Items.Add(DevAddr + ' : ' + DevName);
-        cboxDevice.Items.Add(DevName + '(' + DevAddr + ')');
         DeviceList.Add(DevName);
+        cboxDevice.Items.Add(DevName + '(' + DevAddr + ')');
+        lstLog.Items.Add(DevAddr + ' : ' + DevName);
       end;
     end;
   finally
