@@ -1,7 +1,7 @@
 object FormMain: TFormMain
-  Left = 312
+  Left = 381
   Height = 430
-  Top = 171
+  Top = 176
   Width = 800
   Caption = 'BYD 蓝牙通讯录导入'
   ClientHeight = 430
@@ -9,42 +9,67 @@ object FormMain: TFormMain
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   LCLVersion = '1.4.4.0'
+  object rgPairedDevice: TRadioGroup
+    Left = 20
+    Height = 100
+    Top = 13
+    Width = 764
+    AutoFill = True
+    Caption = '已配对设备'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 4
+    ClientHeight = 78
+    ClientWidth = 760
+    Columns = 4
+    Items.Strings = (
+      'Device 1'
+      'Device 2'
+      'Device 3'
+      'Device 4'
+      'Device 5'
+      'Device 6'
+      'Device 7'
+      'Device 8'
+    )
+    OnSelectionChanged = rgPairedDeviceSelectionChanged
+    TabOrder = 5
+  end
   object DBGrid1: TDBGrid
+    AnchorSideTop.Control = rgPairedDevice
+    AnchorSideTop.Side = asrBottom
     AnchorSideRight.Control = BtnImport
     AnchorSideBottom.Side = asrCenter
     Left = 20
-    Height = 249
-    Top = 72
+    Height = 193
+    Top = 128
     Width = 336
     Anchors = [akTop, akLeft, akRight, akBottom]
+    BorderSpacing.Top = 15
     BorderSpacing.Right = 12
     Color = clWindow
     Columns = <>
     DataSource = DataSource1
     TabOrder = 0
   end
-  object Label1: TLabel
-    AnchorSideLeft.Control = DBGrid1
-    AnchorSideRight.Control = cboxDevice
-    Left = 20
-    Height = 12
-    Top = 40
-    Width = 72
-    BorderSpacing.Right = 2
-    Caption = '已配对设备：'
-    ParentColor = False
-  end
   object StringGrid1: TStringGrid
     AnchorSideLeft.Control = BtnImport
     AnchorSideLeft.Side = asrBottom
+    AnchorSideTop.Control = rgPairedDevice
+    AnchorSideTop.Side = asrBottom
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Side = asrBottom
     Left = 455
-    Height = 249
-    Top = 72
+    Height = 193
+    Top = 128
     Width = 329
     Anchors = [akTop, akLeft, akRight, akBottom]
     BorderSpacing.Left = 12
+    BorderSpacing.Top = 15
     ColCount = 3
     DefaultColWidth = 108
     FixedCols = 0
@@ -54,38 +79,12 @@ object FormMain: TFormMain
   object BtnImport: TButton
     Left = 368
     Height = 55
-    Top = 72
+    Top = 128
     Width = 75
     Anchors = [akTop]
     Caption = '«导入通讯录'
     OnClick = BtnImportClick
     TabOrder = 2
-  end
-  object chkClear: TCheckBox
-    AnchorSideLeft.Control = cboxDevice
-    AnchorSideLeft.Side = asrBottom
-    Left = 368
-    Height = 21
-    Top = 36
-    Width = 118
-    BorderSpacing.Left = 12
-    Caption = '先删除车内通讯录'
-    TabOrder = 3
-  end
-  object cboxDevice: TComboBox
-    AnchorSideLeft.Control = Label1
-    AnchorSideLeft.Side = asrBottom
-    AnchorSideRight.Control = DBGrid1
-    AnchorSideRight.Side = asrBottom
-    Left = 94
-    Height = 25
-    Top = 32
-    Width = 262
-    Anchors = [akTop, akLeft, akRight]
-    ItemHeight = 17
-    OnChange = cboxDeviceChange
-    Style = csDropDownList
-    TabOrder = 4
   end
   object btnExit: TButton
     AnchorSideBottom.Control = DBGrid1
@@ -97,7 +96,7 @@ object FormMain: TFormMain
     Anchors = [akBottom]
     Caption = '退出程序'
     OnClick = btnExitClick
-    TabOrder = 5
+    TabOrder = 3
   end
   object lstLog: TListBox
     AnchorSideTop.Control = DBGrid1
@@ -111,6 +110,15 @@ object FormMain: TFormMain
     Anchors = [akTop, akLeft, akRight, akBottom]
     BorderSpacing.Top = 10
     ItemHeight = 0
+    TabOrder = 4
+  end
+  object btnRemove: TButton
+    Left = 368
+    Height = 55
+    Top = 200
+    Width = 75
+    Caption = '删除通讯录'
+    OnClick = btnRemoveClick
     TabOrder = 6
   end
   object SQLite3Connection1: TSQLite3Connection
@@ -160,7 +168,7 @@ object FormMain: TFormMain
     )
     Params = <>
     left = 128
-    top = 264
+    top = 248
   end
   object SQLTransaction1: TSQLTransaction
     Active = False
@@ -171,7 +179,7 @@ object FormMain: TFormMain
   object DataSource1: TDataSource
     DataSet = SQLQuery1
     left = 224
-    top = 264
+    top = 248
   end
   object SQLQuery2: TSQLQuery
     FieldDefs = <>
@@ -182,11 +190,11 @@ object FormMain: TFormMain
     )
     Params = <>
     left = 128
-    top = 88
+    top = 344
   end
   object DataSource2: TDataSource
     DataSet = SQLQuery2
     left = 224
-    top = 88
+    top = 344
   end
 end

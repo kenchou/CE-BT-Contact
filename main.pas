@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, sqlite3conn, sqldb, db, FileUtil, Forms, Controls,
-  Graphics, Dialogs, DBGrids, StdCtrls, Grids, DbCtrls, CsvDocument,
+  Graphics, Dialogs, DBGrids, StdCtrls, Grids, DbCtrls, ExtCtrls, CsvDocument,
   stringgridutil, dbgridutil, lconvencoding, IniFiles, LazUTF8;
 
 type
@@ -16,13 +16,12 @@ type
   TFormMain = class(TForm)
     BtnImport: TButton;
     btnExit: TButton;
-    chkClear: TCheckBox;
-    cboxDevice: TComboBox;
+    btnRemove: TButton;
     DataSource1: TDataSource;
     DataSource2: TDataSource;
     DBGrid1: TDBGrid;
-    Label1: TLabel;
     lstLog: TListBox;
+    rgPairedDevice: TRadioGroup;
     SQLite3Connection1: TSQLite3Connection;
     SQLQuery1: TSQLQuery;
     SQLQuery2: TSQLQuery;
@@ -30,9 +29,10 @@ type
     StringGrid1: TStringGrid;
     procedure btnExitClick(Sender: TObject);
     procedure BtnImportClick(Sender: TObject);
-    procedure cboxDeviceChange(Sender: TObject);
+    procedure btnRemoveClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure rgPairedDeviceSelectionChanged(Sender: TObject);
   private
     { private declarations }
     CsvDocumentContact: TCSVDocument;
@@ -74,12 +74,10 @@ begin
   // Detect DB & CSV path
   BtDbFile := ConcatPaths([BtAppPath, 'BT.db']);
   BtIniFile := ConcatPaths([BtAppPath, 'BlueTooth.ini']);
-
   {$IfDef Win32}
   BtDbFile := ConcatPaths([Application.Location, BtDbFile]);
   BtIniFile := ConcatPaths([Application.Location, BtIniFile]);
   {$EndIf}
-
   CsvFile := ExpandFileNameUTF8(FileSearchUTF8('contact.csv', Application.Location + ';' + SearchPath));
 
 //  lstLog.Items.Clear;
@@ -87,8 +85,6 @@ begin
   lstLog.Items.Add('BT Ini File: ' + BtIniFile);
   lstLog.Items.Add('BT Db File: ' + BtDbFile);
   lstLog.Items.Add('Csv File: ' + CsvFile);
-
-  PopulateDeviceFromConfig;
 
   // Check BlueTooth.ini
   CheckRequired(FileExistsUTF8(BtIniFile), '没在指定位置找到蓝牙配置文件, 这车不是秦？' + BtDbFile);
@@ -102,7 +98,8 @@ begin
   SQLite3Connection1.Open;
 
   //PopulateDevice;
-  RefreshContact(GetSelectedDevice);
+  PopulateDeviceFromConfig;
+  //RefreshContact(GetSelectedDevice);
 
   // Load Contact.csv
   CsvDocumentContact := TCSVDocument.Create;
@@ -115,6 +112,11 @@ procedure TFormMain.FormDestroy(Sender: TObject);
 begin
   CsvDocumentContact.Free;
   DeviceList.Free;
+end;
+
+procedure TFormMain.rgPairedDeviceSelectionChanged(Sender: TObject);
+begin
+  RefreshContact(GetSelectedDevice);
 end;
 
 procedure TFormMain.CheckRequired(expr: Boolean; message: string);
@@ -137,20 +139,13 @@ var
   count: integer;
   ID: Integer;
 begin
-  if cboxDevice.ItemIndex = -1 then
+  if rgPairedDevice.ItemIndex = -1 then
   begin
     ShowMessage('请先选择一个已配对的设备');
-    exit;
+    Exit;
   end;
 
-  //aDeviceName := cboxDevice.Items[cboxDevice.ItemIndex];
   aDeviceName := GetSelectedDevice();
-
-  // Delete record if check the checkbox
-  if chkClear.checked then
-  begin
-    CleanContact(aDeviceName);
-  end;
 
   // Ignored unsaved data on dbgrid and start new transaction
   SQLTransaction1.Rollback;
@@ -178,9 +173,17 @@ begin
   ShowMessage('完成! 共导入 ' + IntToStr(count) + ' 条记录.');
 end;
 
-procedure TFormMain.cboxDeviceChange(Sender: TObject);
+procedure TFormMain.btnRemoveClick(Sender: TObject);
+var
+  aDeviceName: string;
 begin
-  RefreshContact(DeviceList[cboxDevice.ItemIndex]);
+  aDeviceName := GetSelectedDevice;
+  if mrYes = MessageDlg('删除操作','你想要删除车上 "' + aDeviceName + '" 的通讯录吗？',
+                        mtConfirmation, [mbYes, mbNo],0) then
+  begin
+    CleanContact(aDeviceName);
+    RefreshContact(aDeviceName);
+  end;
 end;
 
 function TFormMain.GetTableMaxId(aTableName: string): Integer;
@@ -201,7 +204,10 @@ end;
 
 function TFormMain.GetSelectedDevice(): string;
 begin
-    Result := DeviceList[cboxDevice.ItemIndex];
+    if rgPairedDevice.ItemIndex = -1 then
+       Result := ''
+    else
+       Result := DeviceList[rgPairedDevice.ItemIndex];
 end;
 
 procedure TFormMain.PopulateDevice;
@@ -214,18 +220,18 @@ begin
   SQLQuery1.SQL.Text := 'SELECT * FROM Paired';
   SQLQuery1.Open;
 
-  cboxDevice.Items.Clear;
+  rgPairedDevice.Items.Clear;
   for Field in SQLQuery1.Fields do
   begin
     if (Field.FieldName = 'ID') or (Field.AsString = '')
         or (Field.AsString = '插装车间')
         or (Field.AsString = '我们的') then continue;
-    cboxDevice.Items.Add(Field.AsString);
+    rgPairedDevice.Items.Add(Field.AsString);
     DeviceList.Add(Field.AsString);
   end;
-  if cboxDevice.Items.Count >= 1 then
+  if rgPairedDevice.Items.Count >= 1 then
   begin
-    cboxDevice.ItemIndex := 0;
+    rgPairedDevice.ItemIndex := 0;
   end;
   SQLQuery1.Close;
   SQLTransaction1.Commit;
@@ -242,6 +248,7 @@ var
   IniFile: TIniFile;
   FromEncoding: string;
   S: string;
+  i: integer;
 begin
   tmpFile := GetTempFileName('', 'BlueTooth.ini');
 
@@ -260,22 +267,21 @@ begin
     StrList.Free;
   end;
 
+  rgPairedDevice.Items.Clear;
   lstLog.Items.Add('Device List from BlueTooth.ini:');
-    // Iterate sections in ini
+  // Iterate sections in ini
   Sections := TStringList.Create;
   IniFile := TIniFile.Create(tmpFile);
   try
-    IniFile.ReadSections(Sections);
-    for Section in Sections do
+    for i := 1 to 12 do
     begin
-      if 1 = UTF8Pos('RemoteDevice', Section) then
-      begin
-        DevName := IniFile.ReadString(Section, 'DevName', '');
-        DevAddr := IniFile.ReadString(Section, 'DevAddr', '');
-        lstLog.Items.Add(DevAddr + ' : ' + DevName);
-        cboxDevice.Items.Add(DevName + '(' + DevAddr + ')');
-        DeviceList.Add(DevName);
-      end;
+      Section := 'RemoteDevice' + IntToStr(i);
+      DevName := IniFile.ReadString(Section, 'DevName', '');
+      DevAddr := IniFile.ReadString(Section, 'DevAddr', '');
+      if DevAddr = '' then continue;
+      DeviceList.Add(DevName);
+      rgPairedDevice.Items.Add(DevName + '(' + DevAddr + ')');
+      lstLog.Items.Add(DevAddr + ' = ' + DevName);
     end;
   finally
     IniFile.Free;
@@ -283,9 +289,9 @@ begin
     DeleteFileUtf8(tmpFile);
   end;
 
-  if cboxDevice.Items.Count >= 1 then
+  if rgPairedDevice.Items.Count >= 1 then
   begin
-    cboxDevice.ItemIndex := 0;
+    rgPairedDevice.ItemIndex := 0;
   end;
 end;
 
