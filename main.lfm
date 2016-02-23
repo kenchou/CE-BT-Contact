@@ -9,7 +9,7 @@ object FormMain: TFormMain
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   LCLVersion = '1.4.4.0'
-  object rgPairedDevice: TRadioGroup
+  object grpPairedDevice: TRadioGroup
     Left = 20
     Height = 100
     Top = 13
@@ -36,13 +36,13 @@ object FormMain: TFormMain
       'Device 7'
       'Device 8'
     )
-    OnSelectionChanged = rgPairedDeviceSelectionChanged
+    OnSelectionChanged = grpPairedDeviceSelectionChanged
     TabOrder = 5
   end
-  object DBGrid1: TDBGrid
-    AnchorSideTop.Control = rgPairedDevice
+  object grdTargetView: TDBGrid
+    AnchorSideTop.Control = grpPairedDevice
     AnchorSideTop.Side = asrBottom
-    AnchorSideRight.Control = BtnImport
+    AnchorSideRight.Control = btnImport
     AnchorSideBottom.Side = asrCenter
     Left = 20
     Height = 193
@@ -56,10 +56,10 @@ object FormMain: TFormMain
     DataSource = DataSource1
     TabOrder = 0
   end
-  object StringGrid1: TStringGrid
-    AnchorSideLeft.Control = BtnImport
+  object grdSourceView: TStringGrid
+    AnchorSideLeft.Control = btnImport
     AnchorSideLeft.Side = asrBottom
-    AnchorSideTop.Control = rgPairedDevice
+    AnchorSideTop.Control = grpPairedDevice
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Side = asrBottom
@@ -76,18 +76,18 @@ object FormMain: TFormMain
     RowCount = 1
     TabOrder = 1
   end
-  object BtnImport: TButton
+  object btnImport: TButton
     Left = 368
     Height = 55
     Top = 128
     Width = 75
     Anchors = [akTop]
     Caption = '«导入通讯录'
-    OnClick = BtnImportClick
+    OnClick = btnImportClick
     TabOrder = 2
   end
   object btnExit: TButton
-    AnchorSideBottom.Control = DBGrid1
+    AnchorSideBottom.Control = grdTargetView
     AnchorSideBottom.Side = asrBottom
     Left = 368
     Height = 55
@@ -99,7 +99,7 @@ object FormMain: TFormMain
     TabOrder = 3
   end
   object lstLog: TListBox
-    AnchorSideTop.Control = DBGrid1
+    AnchorSideTop.Control = grdTargetView
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Side = asrBottom
@@ -180,21 +180,5 @@ object FormMain: TFormMain
     DataSet = SQLQuery1
     left = 224
     top = 248
-  end
-  object SQLQuery2: TSQLQuery
-    FieldDefs = <>
-    Database = SQLite3Connection1
-    Transaction = SQLTransaction1
-    SQL.Strings = (
-      'SELECT DISTINCT(DeviceName) AS DeviceName FROM Contact'
-    )
-    Params = <>
-    left = 128
-    top = 344
-  end
-  object DataSource2: TDataSource
-    DataSet = SQLQuery2
-    left = 224
-    top = 344
   end
 end
