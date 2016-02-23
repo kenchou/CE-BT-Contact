@@ -19,11 +19,11 @@
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
       <MinorVersionNr Value="1"/>
-      <RevisionNr Value="2"/>
-      <BuildNr Value="25"/>
+      <RevisionNr Value="3"/>
+      <BuildNr Value="39"/>
       <Language Value="0804"/>
       <CharSet Value="04B0"/>
-      <StringTable CompanyName="SciCooking" InternalName="CE-BT-Import" LegalCopyright="scicooking.net" ProductName="蓝牙通讯录导入" ProductVersion=""/>
+      <StringTable CompanyName="SciCooking" InternalName="CE-BT-Import" LegalCopyright="scicooking.net" ProductName="BYD蓝牙通讯录导入" ProductVersion=""/>
     </VersionInfo>
     <MacroValues Count="1">
       <Macro2 Name="LCLWidgetType" Value="win32"/>
