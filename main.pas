@@ -14,49 +14,50 @@ type
   { TFormMain }
 
   TFormMain = class(TForm)
-    BtnImport: TButton;
+    btnImport: TButton;
     btnExit: TButton;
     btnRemove: TButton;
     DataSource1: TDataSource;
-    DataSource2: TDataSource;
-    DBGrid1: TDBGrid;
+    grdTargetView: TDBGrid;
     lstLog: TListBox;
-    rgPairedDevice: TRadioGroup;
+    grpPairedDevice: TRadioGroup;
     SQLite3Connection1: TSQLite3Connection;
     SQLQuery1: TSQLQuery;
-    SQLQuery2: TSQLQuery;
     SQLTransaction1: TSQLTransaction;
-    StringGrid1: TStringGrid;
+    grdSourceView: TStringGrid;
     procedure btnExitClick(Sender: TObject);
-    procedure BtnImportClick(Sender: TObject);
+    procedure btnImportClick(Sender: TObject);
     procedure btnRemoveClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure rgPairedDeviceSelectionChanged(Sender: TObject);
+    procedure grpPairedDeviceSelectionChanged(Sender: TObject);
   private
     { private declarations }
-    CsvDocumentContact: TCSVDocument;
-    DeviceList: TStringList;
-    procedure CheckRequired(expr: Boolean; message: string);
-    procedure RefreshContact(aDeviceName: string='');
-    procedure CleanContact(aDeviceName: string='');
+    FBtConfigFile: string;
+    FBtDbFile: string;
+    FCsvFile: string;
+    FCsvContact: TCSVDocument;
+    FDeviceList: TStringList;
+    procedure CheckRequired(AExpr: Boolean; AMessage: string);
+    procedure RefreshContact(ADeviceName: string='');
+    procedure CleanContact(ADeviceName: string='');
     procedure PopulateDevice;
     procedure PopulateDeviceFromConfig;
     function GetTableMaxId(aTableName: string): Integer;
     function GetSelectedDevice(): string;
   public
     { public declarations }
-    BtIniFile: string;
-    BtDbFile: string;
-    CsvFile: string;
   end;
 
 var
   FormMain: TFormMain;
 
 const
-  BtAppPath = '\BT Disk\CeApp\BT';
-  SearchPath = '\SDMemory2;\SDMemory3';
+  SBtAppPath = '\BT Disk\CeApp\BT';
+  SSearchPath = '\SDMemory2;\SDMemory3';
+  SBtSqliteDb = 'BT.db';
+  SBtConfigFile = 'BlueTooth.ini';
+  SSourceFile = 'contact.csv';
 
 implementation
 
@@ -69,32 +70,32 @@ begin
   Left := 0;
   Top := 25;
 
-  DeviceList := TStringList.Create;
+  FDeviceList := TStringList.Create;
 
   // Detect DB & CSV path
-  BtDbFile := ConcatPaths([BtAppPath, 'BT.db']);
-  BtIniFile := ConcatPaths([BtAppPath, 'BlueTooth.ini']);
+  FBtDbFile := ConcatPaths([SBtAppPath, SBtSqliteDb]);
+  FBtConfigFile := ConcatPaths([SBtAppPath, SBtConfigFile]);
   {$IfDef Win32}
-  BtDbFile := ConcatPaths([Application.Location, BtDbFile]);
-  BtIniFile := ConcatPaths([Application.Location, BtIniFile]);
+  FBtDbFile := ConcatPaths([Application.Location, FBtDbFile]);
+  FBtConfigFile := ConcatPaths([Application.Location, FBtConfigFile]);
   {$EndIf}
-  CsvFile := ExpandFileNameUTF8(FileSearchUTF8('contact.csv', Application.Location + ';' + SearchPath));
+  FCsvFile := ExpandFileNameUTF8(FileSearchUTF8(SSourceFile, Application.Location + ';' + SSearchPath));
 
 //  lstLog.Items.Clear;
   lstLog.Items.Add('Temp Path: ' + GetTempDir);
-  lstLog.Items.Add('BT Ini File: ' + BtIniFile);
-  lstLog.Items.Add('BT Db File: ' + BtDbFile);
-  lstLog.Items.Add('Csv File: ' + CsvFile);
+  lstLog.Items.Add('BT Ini File: ' + FBtConfigFile);
+  lstLog.Items.Add('BT Db File: ' + FBtDbFile);
+  lstLog.Items.Add('Csv File: ' + FCsvFile);
 
   // Check BlueTooth.ini
-  CheckRequired(FileExistsUTF8(BtIniFile), '没在指定位置找到蓝牙配置文件, 这车不是秦？' + BtDbFile);
+  CheckRequired(FileExistsUTF8(FBtConfigFile), '没在指定位置找到蓝牙配置文件, 这车不是秦？' + FBtDbFile);
   // Check BT.db
-  CheckRequired(FileExistsUTF8(BtDbFile), '没找到通讯录，这车不是秦？' + BtDbFile);
+  CheckRequired(FileExistsUTF8(FBtDbFile), '没找到通讯录，这车不是秦？' + FBtDbFile);
   // Check contact.csv
-  CheckRequired(FileExistsUTF8(CsvFile), '没找到要导入的通讯录 CSV 文件。请将 Contact.csv 文件放置在 TF 卡根目录' + CsvFile);
+  CheckRequired(FileExistsUTF8(FCsvFile), '没找到要导入的通讯录 CSV 文件。请将 Contact.csv 文件放置在 TF 卡根目录' + FCsvFile);
 
   // Connecte to SQLite
-  SQLite3Connection1.DatabaseName := BtDbFile;
+  SQLite3Connection1.DatabaseName := FBtDbFile;
   SQLite3Connection1.Open;
 
   //PopulateDevice;
@@ -102,97 +103,96 @@ begin
   //RefreshContact(GetSelectedDevice);
 
   // Load Contact.csv
-  CsvDocumentContact := TCSVDocument.Create;
-  CsvDocumentContact.LoadFromFile(CsvFile);
-  LoadGridFromCSVDocument(StringGrid1, CsvDocumentContact);
+  FCsvContact := TCSVDocument.Create;
+  FCsvContact.LoadFromFile(FCsvFile);
+  LoadGridFromCSVDocument(grdSourceView, FCsvContact);
 
 end;
 
 procedure TFormMain.FormDestroy(Sender: TObject);
 begin
-  CsvDocumentContact.Free;
-  DeviceList.Free;
+  FCsvContact.Free;
+  FDeviceList.Free;
 end;
 
-procedure TFormMain.rgPairedDeviceSelectionChanged(Sender: TObject);
+procedure TFormMain.grpPairedDeviceSelectionChanged(Sender: TObject);
 begin
   RefreshContact(GetSelectedDevice);
 end;
 
-procedure TFormMain.CheckRequired(expr: Boolean; message: string);
+procedure TFormMain.CheckRequired(AExpr: Boolean; AMessage: string);
 begin
-  if not expr then
+  if not AExpr then
   begin
-    ShowMessage(message);
+    ShowMessage(AMessage);
     Application.ShowMainForm := False;
     Application.Terminate;
     Close;
-    //halt;
   end;
 end;
 
-procedure TFormMain.BtnImportClick(Sender: TObject);
+procedure TFormMain.btnImportClick(Sender: TObject);
 var
-  aSQLText: string;
-  aDeviceName: string;
-  r: integer;
-  count: integer;
+  LSqlText: string;
+  LDeviceName: string;
+  LRow: integer;
+  LCount: integer;
   ID: Integer;
 begin
-  if rgPairedDevice.ItemIndex = -1 then
+  if grpPairedDevice.ItemIndex = -1 then
   begin
     ShowMessage('请先选择一个已配对的设备');
     Exit;
   end;
 
-  aDeviceName := GetSelectedDevice();
+  LDeviceName := GetSelectedDevice();
 
   // Ignored unsaved data on dbgrid and start new transaction
   SQLTransaction1.Rollback;
 
   ID := GetTableMaxId('Contact');
   SQLTransaction1.StartTransaction;
-  aSQLText := 'INSERT INTO Contact (ID, DeviceName, Name, PhoneNum) VALUES (:ID, :DeviceName, :Name, :PhoneNum)';
+  LSqlText := 'INSERT INTO Contact (ID, DeviceName, Name, PhoneNum) VALUES (:ID, :DeviceName, :Name, :PhoneNum)';
   SQLQuery1.SQL.Clear;
-  SQLQuery1.SQL.Text := aSQLText;
-  count := 0;
-  for r := 1 to CsvDocumentContact.RowCount - 1 do
+  SQLQuery1.SQL.Text := LSqlText;
+  LCount := 0;
+  for LRow := 1 to FCsvContact.RowCount - 1 do
   begin
     ID := ID + 1;
     SQLQuery1.ParamByName('ID').AsInteger := ID;
-    SQLQuery1.ParamByName('DeviceName').AsString := aDeviceName;
-    SQLQuery1.ParamByName('Name').AsString := CsvDocumentContact.Cells[0, r];
-    SQLQuery1.ParamByName('PhoneNum').AsString := CsvDocumentContact.Cells[1, r];
+    SQLQuery1.ParamByName('DeviceName').AsString := LDeviceName;
+    SQLQuery1.ParamByName('Name').AsString := FCsvContact.Cells[0, LRow];
+    SQLQuery1.ParamByName('PhoneNum').AsString := FCsvContact.Cells[1, LRow];
     SQLQuery1.ExecSQL;
-    count := count + 1;
+    LCount := LCount + 1;
   end;
   SQLTransaction1.Commit;
 
-  RefreshContact(aDeviceName);
-  lstLog.Items.Add('"' + aDeviceName + '" 导入 ' + IntToStr(count) + ' 条记录.');
-  ShowMessage('完成! 共导入 ' + IntToStr(count) + ' 条记录.');
+  RefreshContact(LDeviceName);
+  lstLog.Items.Add('"' + LDeviceName + '" 导入 ' + IntToStr(LCount) + ' 条记录.');
+  ShowMessage('完成! 共导入 ' + IntToStr(LCount) + ' 条记录.');
 end;
 
 procedure TFormMain.btnRemoveClick(Sender: TObject);
 var
-  aDeviceName: string;
+  LDeviceName: string;
 begin
-  aDeviceName := GetSelectedDevice;
-  if mrYes = MessageDlg('删除操作','你想要删除车上 "' + aDeviceName + '" 的通讯录吗？',
+  LDeviceName := GetSelectedDevice;
+  if mrYes = MessageDlg('删除操作','你想要删除车上 "' + LDeviceName + '" 的通讯录吗？',
                         mtConfirmation, [mbYes, mbNo],0) then
   begin
-    CleanContact(aDeviceName);
-    RefreshContact(aDeviceName);
+    CleanContact(LDeviceName);
+    RefreshContact(LDeviceName);
   end;
 end;
 
 function TFormMain.GetTableMaxId(aTableName: string): Integer;
 var
-  aSQLText: string;
+  LSqlText: string;
 begin
-  aSQLText := Format('SELECT MAX(ID) FROM %s', [aTableName]);
+  LSqlText := Format('SELECT MAX(ID) FROM %s', [aTableName]);
   SQLQuery1.SQL.Clear;
-  SQLQuery1.SQL.Text := aSQLText;
+  SQLQuery1.SQL.Text := LSqlText;
   SQLQuery1.Open;
   if SQLQuery1.Fields[0].AsString = '' then
     Result := 0
@@ -204,10 +204,10 @@ end;
 
 function TFormMain.GetSelectedDevice(): string;
 begin
-    if rgPairedDevice.ItemIndex = -1 then
+    if grpPairedDevice.ItemIndex = -1 then
        Result := ''
     else
-       Result := DeviceList[rgPairedDevice.ItemIndex];
+       Result := FDeviceList[grpPairedDevice.ItemIndex];
 end;
 
 procedure TFormMain.PopulateDevice;
@@ -220,18 +220,18 @@ begin
   SQLQuery1.SQL.Text := 'SELECT * FROM Paired';
   SQLQuery1.Open;
 
-  rgPairedDevice.Items.Clear;
+  grpPairedDevice.Items.Clear;
   for Field in SQLQuery1.Fields do
   begin
     if (Field.FieldName = 'ID') or (Field.AsString = '')
         or (Field.AsString = '插装车间')
         or (Field.AsString = '我们的') then continue;
-    rgPairedDevice.Items.Add(Field.AsString);
-    DeviceList.Add(Field.AsString);
+    grpPairedDevice.Items.Add(Field.AsString);
+    FDeviceList.Add(Field.AsString);
   end;
-  if rgPairedDevice.Items.Count >= 1 then
+  if grpPairedDevice.Items.Count > 0 then
   begin
-    rgPairedDevice.ItemIndex := 0;
+    grpPairedDevice.ItemIndex := 0;
   end;
   SQLQuery1.Close;
   SQLTransaction1.Commit;
@@ -239,90 +239,87 @@ end;
 
 procedure TFormMain.PopulateDeviceFromConfig;
 var
-  tmpFile: string;
-  StrList: TStringList;
-  Sections: TStringList;
-  Section: string;
-  DevAddr: string;
-  DevName: string;
-  IniFile: TIniFile;
-  FromEncoding: string;
-  S: string;
+  LTmpFile: string;
+  LStringList: TStringList;
+  LSection: string;
+  LDeviceAddr: string;
+  LDeviceName: string;
+  LIniFile: TIniFile;
+  LGuessEncoding: string;
+  Str: string;
   i: integer;
 begin
-  tmpFile := GetTempFileName('', 'BlueTooth.ini');
+  LTmpFile := GetTempFileName('', SBtConfigFile);
 
   // for Test, Read Unicode File
-  StrList := TStringList.Create;
-  StrList.TextLineBreakStyle := TTextLineBreakStyle.tlbsLF;
+  LStringList := TStringList.Create;
+  LStringList.TextLineBreakStyle := TTextLineBreakStyle.tlbsLF;
   try
-    StrList.LoadFromFile(BtIniFile);
-    S := StrList.Text;
-    FromEncoding := GuessEncoding(S);
-    lstLog.Items.Add('BlueTooth.ini Encoding(Guess): ' + FromEncoding);
-    S := ConvertEncoding(S, FromEncoding, EncodingUTF8);
-    StrList.Text := Utf8BomToUtf8(S);
-    StrList.SaveToFile(tmpFile);
+    LStringList.LoadFromFile(FBtConfigFile);
+    Str := LStringList.Text;
+    LGuessEncoding := GuessEncoding(Str);
+    lstLog.Items.Add('BlueTooth.ini Encoding(Guess): ' + LGuessEncoding);
+    Str := ConvertEncoding(Str, LGuessEncoding, EncodingUTF8);
+    LStringList.Text := Utf8BomToUtf8(Str);
+    LStringList.SaveToFile(LTmpFile);
   finally
-    StrList.Free;
+    LStringList.Free;
   end;
 
-  rgPairedDevice.Items.Clear;
-  lstLog.Items.Add('Device List from BlueTooth.ini:');
-  // Iterate sections in ini
-  Sections := TStringList.Create;
-  IniFile := TIniFile.Create(tmpFile);
+  grpPairedDevice.Items.Clear;
+  lstLog.Items.Add('Device List from ' + SBtConfigFile + ':');
+
+  LIniFile := TIniFile.Create(LTmpFile);
   try
     for i := 1 to 12 do
     begin
-      Section := 'RemoteDevice' + IntToStr(i);
-      DevName := IniFile.ReadString(Section, 'DevName', '');
-      DevAddr := IniFile.ReadString(Section, 'DevAddr', '');
-      if DevAddr = '' then continue;
-      DeviceList.Add(DevName);
-      rgPairedDevice.Items.Add(DevName + '(' + DevAddr + ')');
-      lstLog.Items.Add(DevAddr + ' = ' + DevName);
+      LSection := 'RemoteDevice' + IntToStr(i);
+      LDeviceName := LIniFile.ReadString(LSection, 'DevName', '');
+      LDeviceAddr := LIniFile.ReadString(LSection, 'DevAddr', '');
+      if LDeviceAddr = '' then continue;
+      FDeviceList.Add(LDeviceName);
+      grpPairedDevice.Items.Add(LDeviceName + '(' + LDeviceAddr + ')');
+      lstLog.Items.Add(LDeviceAddr + ' = ' + LDeviceName);
     end;
   finally
-    IniFile.Free;
-    Sections.Free;
-    DeleteFileUtf8(tmpFile);
+    LIniFile.Free;
+    DeleteFileUtf8(LTmpFile);
   end;
 
-  if rgPairedDevice.Items.Count >= 1 then
+  if grpPairedDevice.Items.Count > 0 then
   begin
-    rgPairedDevice.ItemIndex := 0;
+    grpPairedDevice.ItemIndex := 0;
   end;
 end;
 
-procedure TFormMain.RefreshContact(aDeviceName: string='');
+procedure TFormMain.RefreshContact(ADeviceName: string='');
 begin
   if not SQLTransaction1.Active then
      SQLTransaction1.StartTransaction;
   SQLQuery1.SQL.Clear;
   SQLQuery1.SQL.Add('SELECT * FROM Contact');
-  if aDeviceName <> '' then
+  if ADeviceName <> '' then
   begin
     SQLQuery1.SQL.Add('WHERE DeviceName = :DeviceName');
-    SQLQuery1.ParamByName('DeviceName').AsString := aDeviceName;
+    SQLQuery1.ParamByName('DeviceName').AsString := ADeviceName;
   end;
   SQLQuery1.Open;
   SQLTransaction1.Commit;
   SQLQuery1.Active := True;
 
-  DBGrid1.AutoSizeColumns;
-  DBGrid1.Columns[1].Width := 80;
-  AutoStretchDBGridColumns(DBGrid1, [0, 1, 2, 3], [20, 80, 50, 150]);
+  grdTargetView.AutoSizeColumns;
+  grdTargetView.Columns[1].Width := 80;
+  AutoStretchDBGridColumns(grdTargetView, [0, 1, 2, 3], [20, 80, 50, 150]);
 end;
 
-procedure TFormMain.CleanContact(aDeviceName: string='');
+procedure TFormMain.CleanContact(ADeviceName: string='');
 begin
   SQLQuery1.SQL.Clear;
   SQLQuery1.SQL.Add('DELETE FROM Contact');
-  if aDeviceName <> '' then
+  if ADeviceName <> '' then
   begin
     SQLQuery1.SQL.Add('WHERE DeviceName = :DeviceName');
-    SQLQuery1.ParamByName('DeviceName').AsString := aDeviceName;
+    SQLQuery1.ParamByName('DeviceName').AsString := ADeviceName;
   end;
   SQLQuery1.ExecSQL;
   SQLTransaction1.Commit;
